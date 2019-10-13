@@ -1,21 +1,15 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {Component} from 'react';
 import './App.css';
+import CreateAccount from './components/CreateAccount';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Welcome to ClimateHero, Emma! 
-        </p>
-        <img src={logo} className="App-logo" alt="logo" />
-        
-        
-      </header>
-    </div>
-  );
-
+class App extends Component {
+  render() {
+      return (
+          <div id="Climate hero">
+            <CreateAccount/>
+          </div>
+      )
+  }
   
 }
 
