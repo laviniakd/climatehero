@@ -3,6 +3,9 @@
 package restapi
 
 import (
+	backend_src "climatehero/backend-src"
+	climatehero_errors "climatehero/errors"
+	"climatehero/models"
 	"crypto/tls"
 	"net/http"
 
@@ -35,27 +38,51 @@ func configureAPI(api *operations.ClimateheroAPI) http.Handler {
 
 	if api.AddUserHandler == nil {
 		api.AddUserHandler = operations.AddUserHandlerFunc(func(params operations.AddUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation .AddUser has not yet been implemented")
+			if err := backend_src.AddUser(*params.Info.Email, *params.Info.Pin, *params.Info.Name); err != nil {
+				return climatehero_errors.NewError(int(*err.Code), *err.Message)
+			}
+
+			return operations.NewAddUserCreated().WithPayload(&models.Name{params.Info.Name})
 		})
 	}
 	if api.CheckItemHandler == nil {
 		api.CheckItemHandler = operations.CheckItemHandlerFunc(func(params operations.CheckItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation .CheckItem has not yet been implemented")
+			points, msg, err := backend_src.CheckItem(params.Item.Email, params.Item.Item)
+			if err != nil {
+				return climatehero_errors.NewError(int(*err.Code), *err.Message)
+			}
+			points64 := int64(*points)
+			return operations.NewCheckItemOK().WithPayload(&models.CheckReturn{&points64, msg})
 		})
 	}
 	if api.GetUserInfoHandler == nil {
 		api.GetUserInfoHandler = operations.GetUserInfoHandlerFunc(func(params operations.GetUserInfoParams) middleware.Responder {
-			return middleware.NotImplemented("operation .GetUserInfo has not yet been implemented")
+			points, checklist, message, err := backend_src.GetUserInfo(params.Email)
+			if err != nil {
+				return climatehero_errors.NewError(int(*err.Code), *err.Message)
+			}
+
+			points64 := int64(*points)
+			return operations.NewGetUserInfoOK().WithPayload(&models.UserInfo{checklist, &points64, message})
 		})
 	}
 	if api.LoginHandler == nil {
 		api.LoginHandler = operations.LoginHandlerFunc(func(params operations.LoginParams) middleware.Responder {
-			return middleware.NotImplemented("operation .Login has not yet been implemented")
+			name, err := backend_src.Login(*params.Email.Email, *params.Email.Pin)
+			if err != nil {
+				return climatehero_errors.NewError(int(*err.Code), *err.Message)
+			}
+
+			return operations.NewLoginOK().WithPayload(&models.Name{name})
 		})
 	}
 	if api.UpdateListHandler == nil {
 		api.UpdateListHandler = operations.UpdateListHandlerFunc(func(params operations.UpdateListParams) middleware.Responder {
-			return middleware.NotImplemented("operation .UpdateList has not yet been implemented")
+			if err := backend_src.UpdateList(params.Info.Email, params.Info.ListItems); err != nil {
+				return climatehero_errors.NewError(int(*err.Code), *err.Message)
+			}
+
+			return operations.NewLoginOK()
 		})
 	}
 
