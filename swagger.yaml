@@ -1,0 +1,197 @@
+swagger: "2.0"
+consumes:
+  - application/json
+info:
+  version: 1.0.0
+  title: Climate Hero
+  description: A web app to incentivize users to be more eco-friendly
+#servers:
+#  - url: http://petstore.swagger.io/api
+paths:
+  /addUser:
+    post:
+      description: |
+        Creates a new Climate Hero user
+      operationId: addUser
+      parameters:
+        - name: info
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/NewUser'
+      responses:
+        '201':
+          description: successfully added user
+          schema:
+            $ref: '#/definitions/Name'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  /login:
+    get:
+      description: Logs in a user
+      operationId: login
+      parameters:
+        - name: email
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/LoginBody'
+      responses:
+        '200':
+          description: successfully logged in
+          schema:
+            $ref: '#/definitions/Name'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  /user/{email}:
+    get:
+      description: Gets user info
+      operationId: getUserInfo
+      parameters:
+        - name: email
+          in: path
+          description: email of the user
+          required: true
+          type: string
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/UserInfo'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  /checkItem:
+    post:
+      description: Checks an item
+      operationId: checkItem
+      parameters:
+        - name: item
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              item:
+                type: string
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/CheckReturn'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  /updateList:
+    post:
+      description: updates a user list
+      operationId: updateList
+      parameters:
+        - name: info
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              listItems:
+                type: array
+                items:
+                  type: string
+      responses:
+        '200':
+          description: success
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+definitions:
+  Email:
+    type: string
+
+  LoginBody:
+    type: object
+    required:
+      - email
+      - pin
+    properties:
+      email:
+        type: string
+      pin:
+        type: string
+  Name:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+
+  NewUser:
+    type: object
+    required:
+      - email
+      - pin
+      - name
+    properties:
+      email:
+        type: string
+      pin:
+        type: string
+      name:
+        type: string
+
+  CheckReturn:
+    type: object
+    required:
+      - points
+      - pointsMessage
+    properties:
+      points:
+        type: integer
+        format: int64
+      pointsMessage:
+        type: string
+
+  UserInfo:
+    type: object
+    required:
+      - points
+      - checkList
+      - pointsMessage
+    properties:
+      points:
+        type: integer
+        format: int64
+      checkList:
+        type: array
+        items:
+          type: string
+      pointsMessage:
+        type: string
+
+  Error:
+    type: object
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
